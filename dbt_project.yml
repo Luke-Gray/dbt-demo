@@ -6,13 +6,18 @@ name: 'dbt_demo'
 version: '1.0.0'
 config-version: 2
 
+#adding custom variables
+vars:
+  current_champion: Lakers
+
+
 # This setting configures which "profile" dbt uses for this project.
 profile: 'snowflake'
 
 # These configurations specify where dbt should look for different types of files.
 # The `source-paths` config, for example, states that models in this project can be
 # found in the "models/" directory. You probably won't need to change these!
-source-paths: ["models"]
+model-paths: ["models"]
 analysis-paths: ["analysis"]
 test-paths: ["tests"]
 seed-paths: ["data"]
@@ -20,10 +25,17 @@ macro-paths: ["macros"]
 snapshot-paths: ["snapshots"]
 
 target-path: "target"  # directory which will store compiled SQL files
-clean-targets:         # directories to be removed by `dbt clean`
+clean-targets:         # directories to be removed by `dbt clean`; used to remove files/folders unwanted
   - "target"
   - "dbt_modules"
+  #- "demo_logs"
 
+
+
+#Hooks to add (can be seen after run in our 'targets' folder)
+#Before it touches the models it will run the first insert statement, and at the end the second
+on-run-start: "{{ insert_audits(run_start) }}"
+on-run-end: "insert into dbt_db.public.dbt_audits (audit_type) values ('run_end'); commit;"
 
 # Configuring models
 # Full documentation: https://docs.getdbt.com/docs/configuring-models
@@ -32,7 +44,22 @@ clean-targets:         # directories to be removed by `dbt clean`
 # as tables. These settings can be overridden in the individual model files
 # using the `{{ config(...) }}` macro.
 models:
+  #The below hooks will run for each model
+  pre-hook: "insert into dbt_db.public.dbt_audits (audit_type) values ('model_start'); commit;"
+  post-hook: "{{ insert_audits(model_end) }}"
   dbt_demo:
-    # Config indicated by + and applies to all files under models/example/
-    example:
+    # Config indicated by + and applies to all files under models/staging/
+    staging:
       +materialized: view
+      +schema: staging
+      +tags: 
+        - first_tag
+        - another_tag
+      example:
+        +materialized: table
+
+#Setting a schema for seed sources (sources expected to only be loaded once)
+seeds:
+  +schema: seed_data
+  #dont need to specify what to materialize as sinc our profile.yml default is table
+

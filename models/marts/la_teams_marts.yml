@@ -1,0 +1,15 @@
+
+version: 2
+
+models:
+  - name: la_teams_marts
+    description: "Starter model for team locations"
+
+    columns:
+      - name: team_locations_names
+        description: '{{ doc("la_team_name_location") }}'
+        tests:
+          - test_is_la_team
+
+      - name: is_champion
+        description: '{{ doc("la_team_current_champ") }}'

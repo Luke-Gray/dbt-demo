@@ -1,0 +1,29 @@
+
+version: 2
+
+models:
+  - name: la_teams
+    description: "Starter model for team locations"
+    columns:
+      - name: team_locations_names
+        description: '{{ doc("la_team_name_location") }}'
+        tests:
+            #- /tests/test_is_la_team
+            
+      - name: is_champion
+        description: '{{ doc("la_team_current_champ") }}'
+        tags:
+          - test_tag
+        tests:
+            - unique
+            - not_null
+
+ 
+  - name: more_teams
+    description: "random nba teams"
+    columns:
+      - name: team
+        description: 'team name'
+
+      - name: invocation_id
+        description: 'invo id'

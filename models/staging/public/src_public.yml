@@ -1,0 +1,15 @@
+# this file is used to demonstrate how we would connect to a table that already
+#exists in snowflake that we want to work with in dbt
+
+version: 2
+
+sources:
+  - name: public
+    database: 
+      {%- if  target.name == "dev" -%} raw_dev #runs on dev target by default
+      {%- elif target.name == "prod"  -%} raw # allows us to use --target dev to use a single 
+      {%- else -%} invalid_database           # dbt model for multiple environments and generate
+      {%- endif -%}                           #difference results based on our target jinja function
+    schema: public                            # that can be found in the joined teams model
+    tables:
+      - name: hip_hop_artists
